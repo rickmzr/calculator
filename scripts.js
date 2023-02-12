@@ -10,7 +10,7 @@ const multiply = document.querySelector('#multiply');
 const four = document.querySelector('#four');
 const five = document.querySelector('#five');
 const six = document.querySelector('#six');
-const minus = document.querySelector('#subtract');
+const subtract = document.querySelector('#subtract');
 const one = document.querySelector('#one');
 const two = document.querySelector('#two');
 const three = document.querySelector('#three');
@@ -20,11 +20,11 @@ const decimal = document.querySelector('#decimal');
 const equals = document.querySelector('#equals');
 let isPositive = true;
 let operatorPressed = false;
-let hasDecimal = false;
 let calcObj = {};
 let maxDigits = 0;
 //check for 11 digits in display, disable number buttons if so
 const checkDigits = function() {
+    checkNumberInDisplay();
     if (maxDigits >= 11) {
         one.disabled = true;
         two.disabled = true;
@@ -51,7 +51,7 @@ const checkDigits = function() {
     }
 };
 //check if a decimal exists in display, disable decimal button if so
-const checkDecimal = function () {
+const checkDecimal = function() {
     if (/\./.test(display.textContent) === true) {
         decimal.disabled = true;
     } else {decimal.disabled = false;}
@@ -63,11 +63,66 @@ const checkPositive = function() {
         display.textContent = display.textContent.slice(1);
     }
 };
+//toggle operator buttons if no numbers in display
+const checkNumberInDisplay = function() {
+    if (maxDigits === 0) {
+        divide.disabled = true;
+        multiply.disabled = true;
+        subtract.disabled = true;
+        add.disabled = true;
+        equals.disabled = true;
+    } else {
+        divide.disabled = false;
+        multiply.disabled = false;
+        subtract.disabled = false;
+        add.disabled = false;
+        equals.disabled = false;
+    }
+};
 const getNumberButtonValue = function() {
     display.textContent += this.textContent;
+    if ((display.textContent.charAt(0) === '/' || display.textContent.charAt(0) === '*' ||
+    display.textContent.charAt(0) === '+' || display.textContent.charAt(0) === '-') &&
+    operatorPressed === true) {
+        display.textContent = display.textContent.slice(1);
+    }
     maxDigits++;
     checkDigits();
 };
+const getOperator = function() {
+    calcObj.firstNumber = +display.textContent;
+    calcObj.operator = this.textContent;
+    maxDigits = 0;
+    isPositive = true;
+    operatorPressed = true;
+    display.textContent = this.textContent;
+    checkDigits();
+};
+const getResult = function(operator) {
+    if (calcObj.hasOwnProperty('firstNumber')) {
+        calcObj.secondNumber = +display.textContent;
+        switch (operator) {
+            case '/':
+                display.textContent = calcObj.firstNumber / calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
+                break;
+            case '*':
+                display.textContent = calcObj.firstNumber * calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
+                break;
+            case '-':
+                display.textContent = calcObj.firstNumber - calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
+                break;
+            case '+':
+                display.textContent = calcObj.firstNumber + calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
+                break;
+        };
+    };
+};
+//disable operator buttons on page load
+document.addEventListener('DOMContentLoaded', checkNumberInDisplay);
 
 //special buttons - all clear, backspace, pos-neg
 clear.addEventListener('click', function() {
@@ -84,6 +139,9 @@ backspace.addEventListener('click', function() {
 //check what is being deleted, reduce digit count by 1 if a number is deleted from display
     } else if (display.textContent.slice(-1) !== '.' && display.textContent.slice(-1) !== '-') {
         maxDigits--;
+//if all you delete is a negative symbol, flip isPositive boolean to true
+    } else if (display.textContent.length === 1 && /-/.test(display.textContent) === true) {
+        isPositive = true;
     }
     display.textContent = display.textContent.slice(0, display.textContent.length-1);
     checkDigits();
@@ -110,3 +168,14 @@ decimal.addEventListener('click', function() {
     display.textContent += this.textContent;
     checkDecimal();
 })
+
+//operator buttons
+divide.addEventListener('click', getOperator);
+multiply.addEventListener('click', getOperator);
+subtract.addEventListener('click', getOperator);
+add.addEventListener('click', getOperator);
+equals.addEventListener('click', function() {
+    getResult(calcObj.operator);
+});
+
+//still need getResult for pressing a second operator instead of equals
