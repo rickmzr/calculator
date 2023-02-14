@@ -24,6 +24,9 @@ let calcObj = {};
 let maxDigits = 0;
 //check for 11 digits in display, disable number buttons if so
 const checkDigits = function() {
+    if (posNeg.disabled) {
+        posNeg.disabled = false;
+    }
     checkNumberInDisplay();
     if (maxDigits >= 11) {
         one.disabled = true;
@@ -80,6 +83,9 @@ const checkNumberInDisplay = function() {
     }
 };
 const getNumberButtonValue = function() {
+    if (posNeg.disabled) {
+        display.textContent = '';
+    }
     display.textContent += this.textContent;
     if ((display.textContent.charAt(0) === '/' || display.textContent.charAt(0) === '*' ||
     display.textContent.charAt(0) === '+' || display.textContent.charAt(0) === '-') &&
@@ -98,25 +104,21 @@ const getOperator = function() {
     display.textContent = this.textContent;
     checkDigits();
 };
-const getResult = function(operator) {
+const getEqualsResult = function(operator) {
     if (calcObj.hasOwnProperty('firstNumber')) {
         calcObj.secondNumber = +display.textContent;
         switch (operator) {
             case '/':
                 display.textContent = calcObj.firstNumber / calcObj.secondNumber;
-                calcObj.firstNumber = +display.textContent;
                 break;
             case '*':
                 display.textContent = calcObj.firstNumber * calcObj.secondNumber;
-                calcObj.firstNumber = +display.textContent;
                 break;
             case '-':
                 display.textContent = calcObj.firstNumber - calcObj.secondNumber;
-                calcObj.firstNumber = +display.textContent;
                 break;
             case '+':
                 display.textContent = calcObj.firstNumber + calcObj.secondNumber;
-                calcObj.firstNumber = +display.textContent;
                 break;
         };
     };
@@ -165,6 +167,10 @@ zero.addEventListener('click', getNumberButtonValue);
 
 //decimal button
 decimal.addEventListener('click', function() {
+    if (posNeg.disabled) {
+        display.textContent = '';
+        posNeg.disabled = false;
+    }
     display.textContent += this.textContent;
     checkDecimal();
 })
@@ -175,7 +181,23 @@ multiply.addEventListener('click', getOperator);
 subtract.addEventListener('click', getOperator);
 add.addEventListener('click', getOperator);
 equals.addEventListener('click', function() {
-    getResult(calcObj.operator);
+    getEqualsResult(calcObj.operator);
+    equals.disabled = true;
+    backspace.disabled = true;
+    posNeg.disabled = true;
+    divide.disabled = true;
+    multiply.disabled = true;
+    subtract.disabled = true;
+    add.disabled = true;
+    calcObj = {};
+    isPositive = true;
+    maxDigits = 0;
+    operatorPressed = false;
 });
 
-//still need getResult for pressing a second operator instead of equals
+
+/* KNOWN BUGS
+still need getResult for pressing a second operator instead of equals
+need overflow rounding for results over 11 digits
+pressing decimal after operator button doesnt clear display
+*/
