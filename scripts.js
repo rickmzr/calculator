@@ -205,6 +205,11 @@ decimal.addEventListener('click', function() {
         posNeg.disabled = false;
     }
     display.textContent += this.textContent;
+    if ((display.textContent.charAt(0) === '/' || display.textContent.charAt(0) === '*' ||
+    display.textContent.charAt(0) === '+' || display.textContent.charAt(0) === '-') &&
+    operatorPressed === true) {
+        display.textContent = display.textContent.slice(1);
+    }
     checkDecimal();
 })
 
@@ -246,7 +251,7 @@ equals.addEventListener('click', function() {
 
 
 /* KNOWN BUGS
-after running getOperatorResult, check when chaining different operators, bug likely
+need check for decimal numbers and a way to calculate them
 need overflow rounding for results over 11 digits
-pressing decimal after operator button doesnt clear display
+
 */
