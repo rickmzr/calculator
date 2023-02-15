@@ -217,22 +217,22 @@ decimal.addEventListener('click', function() {
 divide.addEventListener('click', function() {
     getOperator(this.textContent);
     getOperatorResult(calcObj.operator, this.textContent);
-
+    posNeg.disabled = true;
 });
 multiply.addEventListener('click', function() {
     getOperator(this.textContent);
     getOperatorResult(calcObj.operator, this.textContent);
-
+    posNeg.disabled = true;
 });
 subtract.addEventListener('click', function() {
-
     getOperator(this.textContent);
     getOperatorResult(calcObj.operator, this.textContent);
+    posNeg.disabled = true;
 });
 add.addEventListener('click', function() {
     getOperator(this.textContent);
     getOperatorResult(calcObj.operator, this.textContent);
-
+    posNeg.disabled = true;
 });
 equals.addEventListener('click', function() {
     getEqualsResult(calcObj.operator);
@@ -253,5 +253,5 @@ equals.addEventListener('click', function() {
 /* KNOWN BUGS
 need check for decimal numbers and a way to calculate them
 need overflow rounding for results over 11 digits
-
+posNeg after operator press, maybe disable button?
 */
