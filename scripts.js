@@ -20,6 +20,7 @@ const decimal = document.querySelector('#decimal');
 const equals = document.querySelector('#equals');
 let isPositive = true;
 let operatorPressed = false;
+let ranOperatorResult = false;
 let calcObj = {};
 let maxDigits = 0;
 //check for 11 digits in display, disable number buttons if so
@@ -86,6 +87,10 @@ const getNumberButtonValue = function() {
     if (posNeg.disabled) {
         display.textContent = '';
     }
+    if (ranOperatorResult) {
+        ranOperatorResult = false;
+        display.textContent = '';
+    }
     display.textContent += this.textContent;
     if ((display.textContent.charAt(0) === '/' || display.textContent.charAt(0) === '*' ||
     display.textContent.charAt(0) === '+' || display.textContent.charAt(0) === '-') &&
@@ -95,14 +100,16 @@ const getNumberButtonValue = function() {
     maxDigits++;
     checkDigits();
 };
-const getOperator = function() {
-    calcObj.firstNumber = +display.textContent;
-    calcObj.operator = this.textContent;
-    maxDigits = 0;
-    isPositive = true;
-    operatorPressed = true;
-    display.textContent = this.textContent;
-    checkDigits();
+const getOperator = function(operator) {
+    if (!operatorPressed) {
+        calcObj.firstNumber = +display.textContent;
+        calcObj.operator = operator;
+        maxDigits = 0;
+        isPositive = true;
+        operatorPressed = true;
+        display.textContent = operator;
+        checkDigits();
+    }
 };
 const getEqualsResult = function(operator) {
     if (calcObj.hasOwnProperty('firstNumber')) {
@@ -119,6 +126,32 @@ const getEqualsResult = function(operator) {
                 break;
             case '+':
                 display.textContent = calcObj.firstNumber + calcObj.secondNumber;
+                break;
+        };
+    };
+};
+const getOperatorResult = function(currentOperator, newOperator) {
+    if (calcObj.hasOwnProperty('firstNumber') && maxDigits > 0) {
+        calcObj.secondNumber = +display.textContent;
+        maxDigits = 0;
+        ranOperatorResult = true;
+        calcObj.operator = newOperator;
+        switch (currentOperator) {
+            case '/':
+                display.textContent = calcObj.firstNumber / calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
+                break;
+            case '*':
+                display.textContent = calcObj.firstNumber * calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
+                break;
+            case '-':
+                display.textContent = calcObj.firstNumber - calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
+                break;
+            case '+':
+                display.textContent = calcObj.firstNumber + calcObj.secondNumber;
+                calcObj.firstNumber = +display.textContent;
                 break;
         };
     };
@@ -176,10 +209,26 @@ decimal.addEventListener('click', function() {
 })
 
 //operator buttons
-divide.addEventListener('click', getOperator);
-multiply.addEventListener('click', getOperator);
-subtract.addEventListener('click', getOperator);
-add.addEventListener('click', getOperator);
+divide.addEventListener('click', function() {
+    getOperator(this.textContent);
+    getOperatorResult(calcObj.operator, this.textContent);
+
+});
+multiply.addEventListener('click', function() {
+    getOperator(this.textContent);
+    getOperatorResult(calcObj.operator, this.textContent);
+
+});
+subtract.addEventListener('click', function() {
+
+    getOperator(this.textContent);
+    getOperatorResult(calcObj.operator, this.textContent);
+});
+add.addEventListener('click', function() {
+    getOperator(this.textContent);
+    getOperatorResult(calcObj.operator, this.textContent);
+
+});
 equals.addEventListener('click', function() {
     getEqualsResult(calcObj.operator);
     equals.disabled = true;
@@ -197,7 +246,7 @@ equals.addEventListener('click', function() {
 
 
 /* KNOWN BUGS
-still need getResult for pressing a second operator instead of equals
+after running getOperatorResult, check when chaining different operators, bug likely
 need overflow rounding for results over 11 digits
 pressing decimal after operator button doesnt clear display
 */
