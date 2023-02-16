@@ -121,8 +121,6 @@ const getOperator = function(operator) {
         checkDigits();
     }
 };
-
-
 const getEqualsResult = function(operator) {
     if (calcObj.hasOwnProperty('firstNumber')) {
         calcObj.secondNumber = display.textContent;
@@ -276,7 +274,7 @@ decimal.addEventListener('click', function() {
         display.textContent = display.textContent.slice(1);
     }
     checkDecimal();
-})
+});
 
 //operator buttons
 divide.addEventListener('click', function() {
@@ -317,4 +315,5 @@ equals.addEventListener('click', function() {
 
 /* KNOWN BUGS
 run getOperatorResult, press decimal button, press number button - now decimal gets deleted due to ranOperatorResult boolean
+posNeg not working after running getOperatorResult
 */
