@@ -121,6 +121,8 @@ const getOperator = function(operator) {
         checkDigits();
     }
 };
+
+
 const getEqualsResult = function(operator) {
     if (calcObj.hasOwnProperty('firstNumber')) {
         calcObj.secondNumber = display.textContent;
@@ -140,22 +142,19 @@ const getEqualsResult = function(operator) {
                 }
             } else if(firstNumDecimalIndex >= 0) {
                 decimalFix = Math.pow(10, lengthOfFirstDecimal);
-                console.log(decimalFix);
             } else if (secondNumDecimalIndex >= 0) {
                 decimalFix = Math.pow(10, lengthOfSecondDecimal);
-                console.log(decimalFix);
             }
         }
-        //this causes problems with div and multiply
         calcObj.firstNumber = +calcObj.firstNumber * decimalFix;
         calcObj.secondNumber = +calcObj.secondNumber * decimalFix;
         switch (operator) {
             case '/':
-                result = ((calcObj.firstNumber / calcObj.secondNumber) / decimalFix).toString();
+                result = ((calcObj.firstNumber / calcObj.secondNumber)).toString();
                 checkResultLength(result);
                 break;
             case '*':
-                result = ((calcObj.firstNumber * calcObj.secondNumber) / decimalFix).toString();
+                result = ((calcObj.firstNumber * calcObj.secondNumber) / decimalFix**2).toString();
                 checkResultLength(result);
                 break;
             case '-':
@@ -171,25 +170,52 @@ const getEqualsResult = function(operator) {
 };
 const getOperatorResult = function(currentOperator, newOperator) {
     if (calcObj.hasOwnProperty('firstNumber') && maxDigits > 0) {
-        calcObj.secondNumber = display.textContent;
         maxDigits = 0;
         ranOperatorResult = true;
+        decimal.disabled = false;
         calcObj.operator = newOperator;
+        calcObj.secondNumber = display.textContent;
+//determine if either number entered has a decimal and how many zeroes to add if needed to fix float errors
+        let firstNumDecimalIndex = calcObj.firstNumber.search(/\./);
+        let secondNumDecimalIndex = calcObj.secondNumber.search(/\./);
+        let lengthOfFirstDecimal = calcObj.firstNumber.slice(firstNumDecimalIndex).length - 1;
+        let lengthOfSecondDecimal = calcObj.secondNumber.slice(secondNumDecimalIndex).length - 1;
+        let decimalFix = 1;
+        let result = 0;
+        if (firstNumDecimalIndex >= 0 || secondNumDecimalIndex >= 0) {
+            if (firstNumDecimalIndex >= 0 && secondNumDecimalIndex >= 0) {
+                if (lengthOfFirstDecimal === lengthOfSecondDecimal || lengthOfFirstDecimal > lengthOfSecondDecimal) {
+                    decimalFix = Math.pow(10, lengthOfFirstDecimal);
+                } else {
+                    decimalFix = Math.pow(10, lengthOfSecondDecimal);
+                }
+            } else if(firstNumDecimalIndex >= 0) {
+                decimalFix = Math.pow(10, lengthOfFirstDecimal);
+            } else if (secondNumDecimalIndex >= 0) {
+                decimalFix = Math.pow(10, lengthOfSecondDecimal);
+            }
+        }
+        calcObj.firstNumber = +calcObj.firstNumber * decimalFix;
+        calcObj.secondNumber = +calcObj.secondNumber * decimalFix;
         switch (currentOperator) {
             case '/':
-                display.textContent = calcObj.firstNumber / calcObj.secondNumber;
+                result = ((calcObj.firstNumber / calcObj.secondNumber)).toString();
+                checkResultLength(result);
                 calcObj.firstNumber = display.textContent;
                 break;
             case '*':
-                display.textContent = calcObj.firstNumber * calcObj.secondNumber;
+                result = ((calcObj.firstNumber * calcObj.secondNumber) / decimalFix**2).toString();
+                checkResultLength(result);
                 calcObj.firstNumber = display.textContent;
                 break;
             case '-':
-                display.textContent = calcObj.firstNumber - calcObj.secondNumber;
+                result = ((calcObj.firstNumber - calcObj.secondNumber) / decimalFix).toString();
+                checkResultLength(result);
                 calcObj.firstNumber = display.textContent;
                 break;
             case '+':
-                display.textContent = calcObj.firstNumber + calcObj.secondNumber;
+                result = ((calcObj.firstNumber + calcObj.secondNumber) / decimalFix).toString();
+                checkResultLength(result);
                 calcObj.firstNumber = display.textContent;
                 break;
         };
@@ -290,5 +316,5 @@ equals.addEventListener('click', function() {
 
 
 /* KNOWN BUGS
-getEqualsResult - addition and subtraction of decimals works, but not multiplication or division
+run getOperatorResult, press decimal button, press number button - now decimal gets deleted due to ranOperatorResult boolean
 */
