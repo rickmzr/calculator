@@ -23,6 +23,31 @@ let operatorPressed = false;
 let ranOperatorResult = false;
 let calcObj = {};
 let maxDigits = 0;
+//check if dividing by zero
+const checkDivideZero = function(operator, secondNumber) {
+    if (operator === '/' && secondNumber === '0') {
+        display.textContent = 'NoDIV0ForU';
+        one.disabled = true;
+        two.disabled = true;
+        three.disabled = true;
+        four.disabled = true;
+        five.disabled = true;
+        six.disabled = true;
+        seven.disabled = true;
+        eight.disabled = true;
+        nine.disabled = true;
+        zero.disabled = true;
+        decimal.disabled = true;
+        backspace.disabled = true;
+        posNeg.disabled = true;
+        divide.disabled = true;
+        multiply.disabled = true;
+        subtract.disabled = true;
+        add.disabled =true;
+        equals.disabled = true;
+        return 'DIV0';
+    }
+}
 //check for 11 digits in display, disable number buttons if so
 const checkDigits = function() {
     if (posNeg.disabled) {
@@ -54,6 +79,7 @@ const checkDigits = function() {
         checkDecimal();
     }
 };
+//allow only 11 digits displayed for result, account for decimal and negative symbol
 const checkResultLength = function(result) {
     if (result.length > 11 && result.includes("-") === false && result.includes(".") === false) {
         result = result.slice(0, 11);
@@ -124,7 +150,10 @@ const getOperator = function(operator) {
 const getEqualsResult = function(operator) {
     if (calcObj.hasOwnProperty('firstNumber')) {
         calcObj.secondNumber = display.textContent;
-//determine if either number entered has a decimal and how many zeroes to add if needed to fix float errors
+        if (checkDivideZero(calcObj.operator, calcObj.secondNumber) === 'DIV0') {
+            return;
+        }
+        //determine if either number entered has a decimal and how many zeroes to add if needed to fix float errors
         let firstNumDecimalIndex = calcObj.firstNumber.search(/\./);
         let secondNumDecimalIndex = calcObj.secondNumber.search(/\./);
         let lengthOfFirstDecimal = calcObj.firstNumber.slice(firstNumDecimalIndex).length - 1;
@@ -173,7 +202,10 @@ const getOperatorResult = function(currentOperator, newOperator) {
         decimal.disabled = false;
         calcObj.operator = newOperator;
         calcObj.secondNumber = display.textContent;
-//determine if either number entered has a decimal and how many zeroes to add if needed to fix float errors
+        if (checkDivideZero(currentOperator, calcObj.secondNumber) === 'DIV0') {
+            return;
+        }
+        //determine if either number entered has a decimal and how many zeroes to add if needed to fix float errors
         let firstNumDecimalIndex = calcObj.firstNumber.search(/\./);
         let secondNumDecimalIndex = calcObj.secondNumber.search(/\./);
         let lengthOfFirstDecimal = calcObj.firstNumber.slice(firstNumDecimalIndex).length - 1;
@@ -222,7 +254,7 @@ const getOperatorResult = function(currentOperator, newOperator) {
 //disable operator buttons on page load
 document.addEventListener('DOMContentLoaded', checkNumberInDisplay);
 
-//special buttons - all clear, backspace, pos-neg
+//All clear button
 clear.addEventListener('click', function() {
     isPositive = true;
     operatorPressed = false;
@@ -231,19 +263,21 @@ clear.addEventListener('click', function() {
     maxDigits = 0;
     checkDigits();
 });
+//backspace button
 backspace.addEventListener('click', function() {
     if (display.textContent.length === 0) {
         return;
-//check what is being deleted, reduce digit count by 1 if a number is deleted from display
+    //check what is being deleted, reduce digit count by 1 if a number is deleted from display
     } else if (display.textContent.slice(-1) !== '.' && display.textContent.slice(-1) !== '-') {
         maxDigits--;
-//if all you delete is a negative symbol, flip isPositive boolean to true
+    //if all you delete is a negative symbol, flip isPositive boolean to true
     } else if (display.textContent.length === 1 && /-/.test(display.textContent) === true) {
         isPositive = true;
     }
     display.textContent = display.textContent.slice(0, display.textContent.length-1);
     checkDigits();
 });
+//negative button
 posNeg.addEventListener('click', function() {
     isPositive = !isPositive;
     checkPositive();
